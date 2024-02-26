@@ -57,6 +57,7 @@ if uploaded_file is not None:
         # Definir el mapeo de 'Área de Negocios' a 'Unidad de Negocio'
         mapeo = {
             'Cañerías y Fittings': 'Piping',
+            'Coplas': 'Piping',
             'Spools': 'Piping',
             'Revestimiento, Piezas Desgaste': 'Piping',
             'Anillo Cerámico': 'Piping',
