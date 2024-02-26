@@ -3,6 +3,7 @@ import pandas as pd
 import openpyxl
 import altair as alt
 import numpy as np
+import locale
 import math
 from streamlit_echarts import st_pyecharts
 from pyecharts import options as opts
@@ -485,17 +486,20 @@ if uploaded_file is not None:
             # Convierte la columna 'CPE' a datetime
             #df['CPE'] = pd.to_datetime(df['CPE'])
 
+            # Obtiene el año y mes actual
+            # Obtiene el año y el mes actual
             current_year = datetime.now().year
             current_month = datetime.now().month
 
             # Filtra el DataFrame para que solo contenga los datos del mes actual
             df_current_month = df_despachar[(df_despachar['CPE'].dt.year == current_year) & (df_despachar['CPE'].dt.month == current_month)]
-
+            # Diccionario con los nombres de los meses en español
+            meses_ESP = {1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril', 5: 'Mayo', 6: 'Junio', 
+                        7: 'Julio', 8: 'Agosto', 9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'}
+            
             # Obtiene el mes actual en español
-            current_month_ESP = datetime.now().strftime('%B')
+            current_month_ESP = meses_ESP[current_month]
 
-            # Filtra el DataFrame para que solo contenga los datos del mes actual
-            df_current_month = df_despachar[(df_despachar['CPE'].dt.year == current_year) & (df_despachar['CPE'].dt.month == current_month)]
             if not df_current_month.empty:
 
                 chart = alt.Chart(df_current_month).mark_bar().encode(
