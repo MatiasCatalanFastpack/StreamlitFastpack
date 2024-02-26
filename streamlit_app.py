@@ -3,7 +3,6 @@ import pandas as pd
 import openpyxl
 import altair as alt
 import numpy as np
-import locale
 import math
 from streamlit_echarts import st_pyecharts
 from pyecharts import options as opts
@@ -486,11 +485,11 @@ if uploaded_file is not None:
             # Convierte la columna 'CPE' a datetime
             #df['CPE'] = pd.to_datetime(df['CPE'])
 
-            # Obtiene el año y mes actual
             current_year = datetime.now().year
             current_month = datetime.now().month
-            # Configura el idioma a español
-            locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+
+            # Filtra el DataFrame para que solo contenga los datos del mes actual
+            df_current_month = df_despachar[(df_despachar['CPE'].dt.year == current_year) & (df_despachar['CPE'].dt.month == current_month)]
 
             # Obtiene el mes actual en español
             current_month_ESP = datetime.now().strftime('%B')
