@@ -280,7 +280,7 @@ if uploaded_file is not None:
                     ).interactive()
 
                     # Mostrar el gráfico
-                    chart
+                    #chart
                 else:
                     st.header('Sin multas en curso.')
                     st.write(" ")
@@ -345,7 +345,7 @@ if uploaded_file is not None:
                 ).interactive()
 
                 # Mostrar el gráfico
-                chart
+                #chart
                 df_unificado=pd.concat([df_combinado, df_combinado2])
                 #st.write(df_unificado)
 
