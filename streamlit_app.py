@@ -281,9 +281,9 @@ if uploaded_file is not None:
 
                     # Mostrar el gráfico
                     #chart
-                else:
-                    st.header('Sin multas en curso.')
-                    st.write(" ")
+                #else:
+                    #st.header('Sin multas en curso.')
+                    #st.write(" ")
                 df_naranjo=df[(df['Colores Semaforo'] == 'Naranjo') & (df['Multa Saturada'] > 100000)]
                 # Crear una columna con colores únicos para cada 'Nota de venta'
                 df_naranjo['Color'] = df_naranjo['Nota de venta'].map(dict(zip(df_naranjo['Nota de venta'].unique(), range(df_naranjo['Nota de venta'].nunique()))))
