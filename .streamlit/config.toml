@@ -1,3 +1,17 @@
-[theme]
-base="light"
-secondaryBackgroundColor="#bda28e"
+[general]
+name = "Fast Pack"
+description = "Enemigos de las Promesas"
+version = "1.0"
+
+[colors]
+primary = "#004DFF"  # Azul
+secondary = "#FF6F00"  # Naranja
+background = "#FFFFFF"  # Blanco
+
+[contact]
+email = "contacto@fastpack.com"
+phone = "+56 9 1234 5678"
+
+[social_media]
+twitter = "@fastpack"
+facebook = "/fastpack"
