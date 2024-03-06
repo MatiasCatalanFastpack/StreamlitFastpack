@@ -1,17 +1,6 @@
-[general]
-name = "Fast Pack"
-description = "Enemigos de las Promesas"
-version = "1.0"
-
-[colors]
-primary = "#004DFF"  # Azul
-secondary = "#FF6F00"  # Naranja
-background = "#FFFFFF"  # Blanco
-
-[contact]
-email = "contacto@fastpack.com"
-phone = "+56 9 1234 5678"
-
-[social_media]
-twitter = "@fastpack"
-facebook = "/fastpack"
+# Puedes personalizar los colores para que coincidan con los de tu logo
+primaryColor = "#004DFF"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#262730"
+font = "sans serif"
