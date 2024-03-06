@@ -668,7 +668,7 @@ if uploaded_file is not None:
                 multas_totales_df_items=df_items_atrasado['Multa Saturada'].sum()+df_items_atrasado['Multa en Curso'].sum()            
                 multas_mañana=int(multas_totales_df_items+multas_totales_df)
                 col3, col4 = st.columns(2)
-                col6.metric(label="Multas Proyectadas Mañana",value=f"{multas_mañana:,}")
+                #col6.metric(label="Multas Proyectadas Mañana",value=f"{multas_mañana:,}")
                 ##Intento calcular Multas
                 st.write(" ")
                 # Primero, calcula la suma total de "Total por Despachar (CLP)" para cada "Área de Negocios"
