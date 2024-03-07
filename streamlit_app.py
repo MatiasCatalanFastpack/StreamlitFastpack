@@ -56,6 +56,11 @@ uploaded_file = st.sidebar.file_uploader("Carga las notas de ventas abiertas", t
 
 uploaded_file2 = st.sidebar.file_uploader("Carga Informe de Multas", type=['xlsx'])
 
+# URL de la imagen
+url_imagen = 'https://fen.uahurtado.cl/wp-content/uploads/2019/12/portada_articulo_5.png'
+
+# Agregar la imagen al sidebar
+st.sidebar.image(url_imagen, caption='Imagen en Sidebar')
 
 if uploaded_file is not None:
     if  uploaded_file2 is not None:
