@@ -148,6 +148,11 @@ if uploaded_file is not None:
                     return 'Verde', np.nan, np.nan, np.nan
             
             df[['Colores Semaforo', 'Multa Saturada', 'Multa en Curso','Multa Diaria']] = df.apply(asignar_color_y_multa, axis=1, result_type='expand')
+            if 'Número de artículo' not in dfm.columns:
+                if 'Item No.' in dfm.columns:
+                    dfm = dfm.rename(columns={'Item No.': 'Número de artículo'}) 
+                    dfm=dfm.rename(columns={'Row Total': 'Total líneas'})
+                
             def asignar_items(df, dfm):
                 # Filtrar las filas en df donde 'Multa se calcula sobre:' es 'Valor del item atrasado'
                 df_filtrado = df[(df['Multa se calcula sobre:'] == 'Valor del item atrasado') & (df['Ahead / Delay'] < 0) & (df['% Multa po Atraso']>0)]
@@ -443,8 +448,8 @@ if uploaded_file is not None:
 
                 # Crea la tarjeta de métricas
                 #st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje:.2f}%")
-
-                chart_proyectadas = alt.Chart(df_multas_proyectadas).mark_bar().encode(
+                df_multas_proyectadas_filtro=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']<900000000]
+                chart_proyectadas = alt.Chart(df_multas_proyectadas_filtro).mark_bar().encode(
                     x=alt.X('Nota de venta:N', sort='-y'),
                     y=alt.Y('Multas Proyectadas:Q', title='Valor Multa (CLP)', axis=alt.Axis(format=',d')),
                     color=alt.Color('Cliente:N', legend=alt.Legend(title='Cliente')),
@@ -648,7 +653,7 @@ if uploaded_file is not None:
                 col1, col2 = st.columns(2)
                 col1.metric(label="Total CLP por Despachar",value=f"{total_despachar:,}",delta=f"{-total_despachar_atrasado:,}"+" Atrasados")
                 col2.metric(label="CLP por Despachar Mes en curso",value=f"{total_despachar_en_curso:,}",delta=str(f"{total_atrasado_mes:,}")+ " Atrasados")
-                st.metric(label="NV a Despachar Mes en curso",value=f"{notas_venta_mes:,}",delta=str(notas_venta_atrasadas)+" Atrasadas")
+                st.metric(label="NV a Despachar Mes en curso",value=f"{notas_venta_mes:,}",delta=str(-notas_venta_atrasadas)+" Atrasadas")
                 ##Intento calcular Multas
                 #Restar -1 a los dias actuales 
 
@@ -808,7 +813,7 @@ if uploaded_file is not None:
                 chart_total_mes
                 st.header("Tamaño del Negocio")
                 st.markdown("**Porcentaje de Ingresos por Cliente**")
-
+        
 
                 st_pyecharts(pie_ingresos)
                 st.write(" ")
