@@ -35,7 +35,7 @@ st.set_page_config(
 st.title('Análisis NV Abiertas')
 
 # Obtener la imagen de la URL
-image_url = "https://i.ibb.co/5jLPQyf/Logo-Fastpack-01-2.png"
+image_url = "https://i.postimg.cc/ncSfFqfV/Logo-Fastpack-01-2.png"
 response = requests.get(image_url)
 image = Image.open(io.BytesIO(response.content))
 
