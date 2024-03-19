@@ -35,7 +35,7 @@ st.set_page_config(
 st.title('Análisis NV Abiertas')
 
 # Obtener la imagen de la URL
-image_url = "https://i.postimg.cc/dVc09QsT/Logo-Fastpack-01-2.png"
+image_url = "https://i.ibb.co/5jLPQyf/Logo-Fastpack-01-2.png"
 response = requests.get(image_url)
 image = Image.open(io.BytesIO(response.content))
 
@@ -56,9 +56,9 @@ st.sidebar.markdown("<hr style='border:2.5px solid white'> </hr>", unsafe_allow_
 st.sidebar.markdown("<h1 style='text-align: center; color: white;'>Análisis de Producción</h1>", unsafe_allow_html=True)
 
 
-uploaded_file = st.sidebar.file_uploader("Carga las notas de ventas abiertas", type=['xlsx'])
+uploaded_file = st.sidebar.file_uploader("Carga las Notas de Venta Abierta", type=['xlsx'])
 
-uploaded_file2 = st.sidebar.file_uploader("Carga Informe de Multas", type=['xlsx'])
+uploaded_file2 = st.sidebar.file_uploader("Carga Informe de Multa", type=['xlsx'])
 
 
 # URL de la imagen
@@ -463,19 +463,18 @@ if uploaded_file is not None:
 
                             
                     df_unificado[['Multas Proyectadas','Historial Multas']]=df_unificado.apply(asignar_multa_proyectada, axis=1,result_type='expand')
-                    #st.write(df_unificado)
                     df_historial_multas=df_unificado[df_unificado['Historial Multas']>0]
 
                     # Calcula las sumas
-                    Suma_multas_historial = int(df_historial_multas['Historial Multas'].sum())
+                    Suma_multas_historial = (df_historial_multas['Historial Multas'].sum())
                     suma_total_venta_historial = df_historial_multas['Total Venta (CLP)'].sum()
 
                     # Calcula el porcentaje
-                    porcentaje = (Suma_multas_historial / suma_total_venta_historial) * 100
-
+                    porcentaje_historial = round(((Suma_multas_historial / suma_total_venta_historial) * 100),2)
+                    df_historial_multas_filtro=df_historial_multas[df_historial_multas['Historial Multas']<250000000]
                     # Crea la tarjeta de métricas
-                    if df_historial_multas.empty==False:
-                        chart_historial = alt.Chart(df_historial_multas).mark_bar().encode(
+                    if df_historial_multas_filtro.empty==False:
+                        chart_historial = alt.Chart(df_historial_multas_filtro).mark_bar().encode(
                             x=alt.X('Nota de venta:N', sort='-y'),
                             y=alt.Y('Historial Multas:Q', title='Valor Multa(CLP)', axis=alt.Axis(format=',d')),
                             color=alt.Color('Cliente:N', legend=None),
@@ -512,14 +511,14 @@ if uploaded_file is not None:
                     suma_total_venta_proyectadas = df_multas_proyectadas['Total Venta (CLP)'].sum()
 
                     # Calcula el porcentaje
-                    porcentaje = (Suma_multas_proyectadas / suma_total_venta_proyectadas) * 100
+                    porcentaje_proyectadas = round((Suma_multas_proyectadas / suma_total_venta_proyectadas) * 100,2)
 
                     
                     # Crea la tarjeta de métricas
                     #st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje:.2f}%")
-                    #df_multas_proyectadas_filtro=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']<900000000]
+                    df_multas_proyectadas_filtro=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']<900000000]
                     #st.write(df_multas_proyectadas_filtro)
-                    chart_proyectadas = alt.Chart(df_multas_proyectadas).mark_bar().encode(
+                    chart_proyectadas = alt.Chart(df_multas_proyectadas_filtro).mark_bar().encode(
                         x=alt.X('Nota de venta:N', sort='-y'),
                         y=alt.Y('Multas Proyectadas:Q', title='Valor Multa (CLP)', axis=alt.Axis(format=',d')),
                         color=alt.Color('Cliente:N', legend=None),
@@ -692,20 +691,24 @@ if uploaded_file is not None:
                     sum_df = df_nv.groupby('Área de Negocios')['Nota de venta'].nunique().reset_index(name='Número de NV')
                     
                     # Ordena el DataFrame de forma ascendente por 'Número de NV'
-                    sum_df = sum_df.sort_values('Número de NV', ascending=False)
                     sum_df = sum_df.sort_values('Número de NV', ascending=False).reset_index()
 
+                    # Asegúrate de que sum_df esté ordenado como deseas que aparezca la leyenda
                     sum_df = sum_df.sort_values('Número de NV', ascending=False)
 
+                    # Ahora, usa 'scale' con 'domain' para especificar el orden de la leyenda
                     chart_nv_area = alt.Chart(sum_df).mark_bar().encode(
-                        x=alt.X('Área de Negocios:N', sort='-y', axis= None),  # Ordenamos las barras de mayor a menor
+                        x=alt.X('Área de Negocios:N', sort='-y', axis=None),
                         y='Número de NV:Q',
-                        color=alt.Color('Área de Negocios:N', legend=alt.Legend(title='Área de Negocios')),  # La leyenda se ordena automáticamente
+                        color=alt.Color('Área de Negocios:N', 
+                                        scale=alt.Scale(domain=sum_df['Área de Negocios'].tolist()),
+                                        legend=alt.Legend(title='Área de Negocios')),
                         tooltip=['Área de Negocios', 'Número de NV']
                     ).properties(
                         height=300,
                         width=900
                     )
+
                     #st.write(df_current_month,"mesencurso")
                     #st.altair_chart(chart_nv_area, use_container_width=True)
                     total_multas=Suma_multas_historial+Suma_multas_proyectadas
@@ -861,54 +864,28 @@ if uploaded_file is not None:
                 if i==0:
 
 
-                        #st_echarts(options=option, key="1")
 
-                                
-                    #chart_combinado
-                    #chart_combinado2
                     if df_historial_multas.empty:
                         nada=0
 
-                    #else:
-                        #st.header("Multas")
-                        #col7,col8=st.columns((1,2))
-                        #col7.metric(label="Total Historial de Multas (CLP)", value=f"{Suma_multas_historial:,}", delta=f"-{porcentaje:.2f}%")                
-                        #chart_historial
-                        #col8.chart_historial
+
                         
                     #st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje:.2f}%")
                     if df_multas_proyectadas.empty:
                         st.write("Sin Multas Proyectadas")
-                    #else:
-                        #chart_proyectadas    
-                    #chart_proyectadas
-                    #st.header("Despachos")
-                    #chart_despachar
-                    #chart_total_mes
-                    #st.header("Tamaño del Negocio")
-                    #st.markdown("**Porcentaje de Ingresos por Cliente**")
-            
 
-                    #st_pyecharts(pie_ingresos)
-                    #st.write(" ")
-                    #st.write("**Cantidad de NV por Área de Negocios**")
-                    #st.altair_chart(chart_nv_area, use_container_width=True)
-                    #st.write("**Total por Despachar $MCLP**")
-                    #st_pyecharts(pie_despachar)
-                    #st.markdown("**Total por despachar NV "+current_month_ESP+"**")
-                    #st_pyecharts(pie_nv)
                     #Mati Presentación
                     st.header ("Multas")
                     style_metric_cards()
                     col1, col2 = st.columns(2)
                     if not df_historial_multas.empty:  
                         with col1: 
-                            st.metric(label="Total Historial de Multas (CLP)", value=f"{Suma_multas_historial:,}", delta=f"-{porcentaje:.2f}%")                
+                            st.metric(label="Total Historial de Multas (CLP)", value=f"{Suma_multas_historial:,}", delta=f"-{porcentaje_historial:.2f}%")                
                             st.altair_chart(chart_historial,use_container_width=True)
                             
                     if not df_multas_proyectadas.empty:  
                         with col2:
-                            st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje:.2f}%")
+                            st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje_proyectadas:.2f}%")
                             st.altair_chart(chart_proyectadas,use_container_width=True)
                 if i==9: 
                     # Crear un DataFrame para los datos
@@ -949,9 +926,24 @@ if uploaded_file is not None:
                         height=300
                     )
                     st.altair_chart(chart_proyeccion_multas,use_container_width=True)
+                    st.write("**Multas Mayores**")
 
-      
+                    df_historial_multas_grandes=df_historial_multas[df_historial_multas['Historial Multas']>=250000000]
+                    #df_historial_multas_grandes.drop(["#"])
+                    #df_historial_multas_grandes.drop([" "])
+
                     
+                    #st.write(df_historial_multas_grandes)
+                    df_multas_proyectadas_grandes=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']>=900000000]
+                    columnas = ["Nota de venta", "Administrador Contratos", "Días de atraso", "Fecha NV", "Cliente", "CPE", "Historial Multas", "Multas Proyectadas", "Tipo de Entrega","Vendedor", "Total Venta (CLP)", "Total por Despachar (CLP)", "Total Generico (CLP)", "Pendiente x cerrar", "Fecha Entrega Fastpack", "Margen Previsto", "Descripción de la Venta", "Estado Pago", "Motivo Atraso", "Área de Negocios", "Tipo Oferta", "Multa se calcula sobre:", "% de Multa se aplica a:", "% Multa po Atraso", "Tope de Multa %", "Multa Saturada", "Multa en Curso", "Multa Diaria", "Estado", "Notas del Administrador"]
+                    df_pegado=pd.concat([df_multas_proyectadas_grandes,df_historial_multas_grandes])
+                    df_multas_mayores = df_pegado[columnas].copy() 
+                    
+                    #columnas_añadir = df_multas_proyectadas_grandes[columnas]
+                    #df_multas_mayores = df_multas_mayores.append(columnas_añadir, ignore_index=True)
+
+                    st.write(df_multas_mayores)                  
+
                     st.header("Despachos")
                     col3,col4=st.columns(2)
                     with col3:
