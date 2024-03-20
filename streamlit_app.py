@@ -7,23 +7,23 @@ import locale
 import math
 import calendar 
 import matplotlib.pyplot as plt
+import requests
+import io
+import base64
+import pygal
 
 from streamlit_echarts import st_pyecharts
+from pyecharts.charts import Gauge
 from pyecharts import options as opts
 from pyecharts.charts import Pie
 from datetime import datetime
 from streamlit_extras.metric_cards import style_metric_cards 
 from streamlit_echarts import st_echarts
-
-
-
-
-# Configurar la página
-import streamlit as st
-import requests
 from PIL import Image
-import io
-import base64
+
+
+
+
 
 # Configurar la página
 st.set_page_config(
@@ -377,10 +377,10 @@ if uploaded_file is not None:
 
                         # Mostrar el gráfico
                         #chart_combinado
-                    else:
-                        if i==0:
+                    #else:
+                        #if i==0:
                             #st.header('Sin multas en curso.')
-                            st.write(" ")
+                            #st.write(" i")
                     df_naranjo=df[(df['Colores Semaforo'] == 'Naranjo') & (df['Multa Saturada'] > 100000)]
                     # Crear una columna con colores únicos para cada 'Nota de venta'
                     df_naranjo['Color'] = df_naranjo['Nota de venta'].map(dict(zip(df_naranjo['Nota de venta'].unique(), range(df_naranjo['Nota de venta'].nunique()))))
@@ -464,7 +464,9 @@ if uploaded_file is not None:
                             
                     df_unificado[['Multas Proyectadas','Historial Multas']]=df_unificado.apply(asignar_multa_proyectada, axis=1,result_type='expand')
                     df_historial_multas=df_unificado[df_unificado['Historial Multas']>0]
-
+                    df['Multa Máxima']=df['Total Venta (CLP)']*(df['Tope de Multa %']/100)
+                    suma_multas_maximas=int(df['Multa Máxima'].sum())
+                    #st.write(suma_multas_maximas)
                     # Calcula las sumas
                     Suma_multas_historial = (df_historial_multas['Historial Multas'].sum())
                     suma_total_venta_historial = df_historial_multas['Total Venta (CLP)'].sum()
@@ -500,9 +502,9 @@ if uploaded_file is not None:
                         #st.metric(label="Total Historial de Multas (CLP)", value=f"{Suma_multas_historial:,}", delta=f"-{porcentaje:.2f}%")
 
                         #chart_historial
-                    else:
-                        if i==0:
-                            st.write(" ")
+                    #else:
+                        #if i==0:
+                            #st.write(" i")
                             #st.header("Sin Historial de Multas")
                     df_multas_proyectadas=df_unificado[df_unificado['Multas Proyectadas']>0]
 
@@ -516,7 +518,7 @@ if uploaded_file is not None:
                     
                     # Crea la tarjeta de métricas
                     #st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje:.2f}%")
-                    df_multas_proyectadas_filtro=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']<900000000]
+                    df_multas_proyectadas_filtro=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']<800000000]
                     #st.write(df_multas_proyectadas_filtro)
                     chart_proyectadas = alt.Chart(df_multas_proyectadas_filtro).mark_bar().encode(
                         x=alt.X('Nota de venta:N', sort='-y'),
@@ -746,7 +748,61 @@ if uploaded_file is not None:
                         col1.metric(label="Total CLP por Despachar",value=f"{total_despachar:,}",delta=f"{-total_despachar_atrasado:,}"+" Atrasados")
                         col2.metric(label="CLP por Despachar Mes en curso",value=f"{total_despachar_en_curso:,}",delta=str(f"{total_atrasado_mes:,}")+ " Atrasados")
                         col13.metric(label="NV a Despachar Mes en curso",value=f"{notas_venta_mes:,}",delta=str(-notas_venta_atrasadas)+" Atrasadas")
+                        universo_total="Universo Total de Posibles Multas: " +f"{suma_multas_maximas:,}"
 
+
+                        option = {
+                            "tooltip": {
+                                "formatter": '{a} <br/>{b} : {c}%'
+                            },
+                            "series": [{
+                                "name": universo_total,
+                                "type": 'gauge',
+                                "startAngle": 180,
+                                "endAngle": 0,
+                                "progress": {
+                                    "show": "true"
+                                },
+                                "radius":'100%', 
+                                "itemStyle": {
+                                    "color": '#58D9F9',
+                                    "shadowColor": 'rgba(0,138,255,0.45)',
+                                    "shadowBlur": 10,
+                                    "shadowOffsetX": 2,
+                                    "shadowOffsetY": 2,
+                                    "radius": '55%',
+                                },
+                                "progress": {
+                                    "show": "true",
+                                    "roundCap": "true",
+                                    "width": 15
+                                },
+                                "pointer": {
+                                    "length": '60%',
+                                    "width": 8,
+                                    "offsetCenter": [0, '5%']
+                                },
+                                "detail": {
+                                    "valueAnimation": "true",
+                                    "formatter": '{value}%',
+                                    "backgroundColor": '#58D9F9',
+                                    "borderColor": '#999',
+                                    "borderWidth": 4,
+                                    "width": '60%',
+                                    "lineHeight": 20,
+                                    "height": 20,
+                                    "borderRadius": 188,
+                                    "offsetCenter": [0, '40%'],
+                                    "valueAnimation": "true",
+                                },
+                                "data": [{
+                                    "value": round((total_multas/suma_multas_maximas)*100,1),  # Calculamos el porcentaje
+                                    "name": 'Porcentaje de Multas del Universo Total'
+                                }]
+                            }]
+                        }
+
+                        st_echarts(options=option, key="1")
 
                     ##prueba fin dia
                     # Crea una lista para almacenar los totales de multas por día
@@ -784,7 +840,7 @@ if uploaded_file is not None:
                     col3, col4 = st.columns(2)
                 #col6.metric(label="Multas Proyectadas Mañana",value=f"{multas_mañana:,}")
                 ##Intento calcular Multas
-                    st.write(" ")
+                    #st.write(" ")
                 # Primero, calcula la suma total de "Total por Despachar (CLP)" para cada "Área de Negocios"
                 df_sum = df.groupby('Área de Negocios')['Total por Despachar (CLP)'].sum().reset_index()
 
@@ -877,16 +933,23 @@ if uploaded_file is not None:
                     #Mati Presentación
                     st.header ("Multas")
                     style_metric_cards()
-                    col1, col2 = st.columns(2)
-                    if not df_historial_multas.empty:  
+                    
+                    if not df_historial_multas.empty and not df_multas_proyectadas.empty:  
+                        col1, col2 = st.columns(2)
                         with col1: 
                             st.metric(label="Total Historial de Multas (CLP)", value=f"{Suma_multas_historial:,}", delta=f"-{porcentaje_historial:.2f}%")                
                             st.altair_chart(chart_historial,use_container_width=True)
-                            
-                    if not df_multas_proyectadas.empty:  
                         with col2:
                             st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje_proyectadas:.2f}%")
                             st.altair_chart(chart_proyectadas,use_container_width=True)
+                    else:
+                        if not df_historial_multas.empty:
+                            st.metric(label="Total Historial de Multas (CLP)", value=f"{Suma_multas_historial:,}", delta=f"-{porcentaje_historial:.2f}%")                
+                            st.altair_chart(chart_historial,use_container_width=True)
+                        if not df_multas_proyectadas.empty:
+                            st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje_proyectadas:.2f}%")
+                            st.altair_chart(chart_proyectadas,use_container_width=True)                                                        
+                        
                 if i==9: 
                     # Crear un DataFrame para los datos
                     grafico_multas = pd.DataFrame({
@@ -926,7 +989,6 @@ if uploaded_file is not None:
                         height=300
                     )
                     st.altair_chart(chart_proyeccion_multas,use_container_width=True)
-                    st.write("**Multas Mayores**")
 
                     df_historial_multas_grandes=df_historial_multas[df_historial_multas['Historial Multas']>=250000000]
                     #df_historial_multas_grandes.drop(["#"])
@@ -934,15 +996,16 @@ if uploaded_file is not None:
 
                     
                     #st.write(df_historial_multas_grandes)
-                    df_multas_proyectadas_grandes=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']>=900000000]
+                    df_multas_proyectadas_grandes=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']>=800000000]
                     columnas = ["Nota de venta", "Administrador Contratos", "Días de atraso", "Fecha NV", "Cliente", "CPE", "Historial Multas", "Multas Proyectadas", "Tipo de Entrega","Vendedor", "Total Venta (CLP)", "Total por Despachar (CLP)", "Total Generico (CLP)", "Pendiente x cerrar", "Fecha Entrega Fastpack", "Margen Previsto", "Descripción de la Venta", "Estado Pago", "Motivo Atraso", "Área de Negocios", "Tipo Oferta", "Multa se calcula sobre:", "% de Multa se aplica a:", "% Multa po Atraso", "Tope de Multa %", "Multa Saturada", "Multa en Curso", "Multa Diaria", "Estado", "Notas del Administrador"]
                     df_pegado=pd.concat([df_multas_proyectadas_grandes,df_historial_multas_grandes])
                     df_multas_mayores = df_pegado[columnas].copy() 
                     
                     #columnas_añadir = df_multas_proyectadas_grandes[columnas]
                     #df_multas_mayores = df_multas_mayores.append(columnas_añadir, ignore_index=True)
-
-                    st.write(df_multas_mayores)                  
+                    if not df_multas_mayores.empty:
+                        st.write("**Multas Mayores**")
+                        st.write(df_multas_mayores)                  
 
                     st.header("Despachos")
                     col3,col4=st.columns(2)
