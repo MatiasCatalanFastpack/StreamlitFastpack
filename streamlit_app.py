@@ -332,9 +332,9 @@ if funcion=="Despacho Mensual":
         ),
         width=1100,
         height=530
-    )
+    ).interactive()
 
-    st.altair_chart(despachados, use_container_width=True).interactive()
+    st.altair_chart(despachados, use_container_width=True)
 
 
 
