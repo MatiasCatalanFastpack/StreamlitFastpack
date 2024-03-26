@@ -1500,7 +1500,7 @@ if funcion=='Reporte Global - Multas':
                         #df_multas_mayores = df_multas_mayores.append(columnas_añadir, ignore_index=True)
                         if not df_multas_mayores.empty:
                             st.write("**Multas Mayores**")
-                            #st.write(df_multas_mayores)                  
+                            st.write(df_multas_mayores)                  
 
                         st.header("Despachos")
                         st.altair_chart(despachados, use_container_width=True)
