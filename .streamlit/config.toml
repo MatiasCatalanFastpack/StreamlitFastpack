@@ -1,8 +1,5 @@
-# Puedes personalizar los colores para que coincidan con los de tu logo
 [theme]
-
-#primaryColor = "#FFCD4B"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#305AA0"
-textColor = "#262730"
-font = "sans serif"
+base="light"
+primaryColor="#ffcd4b"
+secondaryBackgroundColor="#305aa0"
+textColor="#262730"
