@@ -185,6 +185,8 @@ if funcion=="Despacho Mensual":
     suma_proyeccion_inicial=df_smartsheet_proyeccion['Columna2'].sum()/1000000
     suma_proyeccion_actual=df_smartsheet_proyeccion['Columna4'].sum()/1000000
     porcentaje_cumplimiento=(df_grouped['Monto Guia'].sum()/(10000*(suma_proyeccion_inicial)))
+    if suma_proyeccion_inicial==0:
+        porcentaje_cumplimiento=100
     st.header("Despachos Mes en Curso")
     st.markdown(f"<p style='color:#3468C0;'><b>Porcentaje de cumplimiento: {porcentaje_cumplimiento:.2f}%</b></p>", unsafe_allow_html=True)
 
