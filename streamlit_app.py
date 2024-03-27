@@ -64,13 +64,16 @@ st.sidebar.markdown("<hr style='border:2.5px solid white'> </hr>", unsafe_allow_
 st.sidebar.markdown("<h1 style='text-align: center; color: white;'>Análisis de Producción</h1>", unsafe_allow_html=True)
 funcion=st.sidebar.radio("Seleccione una Función",["Despacho Mensual","Reporte Global - Multas", "Reporte FPS (futuro)"])
 
-
+url_despacho='https://icons8.com/icon/21183/in-transit'
 
 # URL de la imagen
 url_imagen = 'https://fen.uahurtado.cl/wp-content/uploads/2019/12/portada_articulo_5.png'
 
 if funcion=="Despacho Mensual":
-    st.title("")
+    st.title("📦 Despachos Mes en Curso")
+
+
+
     def read_smartsheet(sheet_id, token):
         # Inicializa el cliente de Smartsheet
         smartsheet_client = smartsheet.Smartsheet(token)
@@ -187,7 +190,9 @@ if funcion=="Despacho Mensual":
     porcentaje_cumplimiento=(df_grouped['Monto Guia'].sum()/(10000*(suma_proyeccion_inicial)))
     if suma_proyeccion_inicial==0:
         porcentaje_cumplimiento=100
-    st.header("Despachos Mes en Curso")
+
+
+
     st.markdown(f"<p style='color:#3468C0;'><b>Porcentaje de cumplimiento: {porcentaje_cumplimiento:.2f}%</b></p>", unsafe_allow_html=True)
 
     st.progress(porcentaje_cumplimiento/100)
@@ -218,7 +223,7 @@ if funcion=="Despacho Mensual":
             # Cambia el color a un tono verde claro y pastel
         opacity=0.5
     ).encode(
-        x=alt.X('Fecha Guia:T', title='Día del Mes', axis=alt.Axis(format='%d')),
+        x=alt.X('Fecha Guia:T', axis=alt.Axis(format='%d'),title=None),
         y=alt.Y('Monto Guia Acumulado $MCLP:Q', title='Monto Acumulado $MCLP'),
         # Asegura que el color se mantiene constante
     )
@@ -295,7 +300,7 @@ if funcion=="Despacho Mensual":
             subtitleColor='gray'
         ),
         width=1100,
-        height=530
+        height=800
     )
 
     # Agregar texto para los valores de las proyecciones
@@ -333,7 +338,7 @@ if funcion=="Despacho Mensual":
             subtitleColor='gray'
         ),
         width=1100,
-        height=530
+        height=620
     )
 
     st.altair_chart(despachados, use_container_width=True)
@@ -343,7 +348,7 @@ if funcion=="Despacho Mensual":
 
    
 if funcion=='Reporte Global - Multas':
-    st.title('Análisis NV Abiertas')
+    st.title('📊 Análisis NV Abiertas')
     uploaded_file = st.sidebar.file_uploader("Carga las Notas de Venta Abierta", type=['xlsx'])
 
     uploaded_file2 = st.sidebar.file_uploader("Carga Informe de Multa", type=['xlsx'])
@@ -1009,9 +1014,9 @@ if funcion=='Reporte Global - Multas':
                                     
                                 ]
                             ).properties(
-                            height=400,width=800,     
+                            height=450,width=800,     
                                 title='Historial de Multas'
-                            ).interactive()
+                            )
                             #st.metric(label="Total Historial de Multas (CLP)", value=f"{Suma_multas_historial:,}", delta=f"-{porcentaje:.2f}%")
 
                             #chart_historial
@@ -1034,8 +1039,8 @@ if funcion=='Reporte Global - Multas':
                         df_multas_proyectadas_filtro=df_multas_proyectadas[df_multas_proyectadas['Multas Proyectadas']<800000000]
                         #st.write(df_multas_proyectadas_filtro)
                         chart_proyectadas = alt.Chart(df_multas_proyectadas_filtro).mark_bar().encode(
-                            x=alt.X('Nota de venta:N', sort='-y'),
-                            y=alt.Y('Multas Proyectadas:Q', title='Valor Multa (CLP)', axis=alt.Axis(format=',d')),
+                            y=alt.Y('Nota de venta:N',sort='-x'),
+                            x=alt.X('Multas Proyectadas:Q', title='Valor Multa (CLP)', axis=alt.Axis(format=',d')),
                             color=alt.Color('Cliente:N', legend=None),
                             tooltip=[
                                 'Nota de venta',
@@ -1054,9 +1059,9 @@ if funcion=='Reporte Global - Multas':
 
                             ]
                         ).properties(
-                        height=400,width=800,     
+                        height=450,width=800,     
                             title='Multas Proyectadas'
-                        ).interactive()
+                        )
                         #chart_proyectadas
                         
 
@@ -1111,7 +1116,7 @@ if funcion=='Reporte Global - Multas':
                         ).properties(
                             height=500, width=900,
                             title='Total por despachar para ' + str(current_month_ESP) + ' según CPE'
-                        ).interactive()
+                        )
                         # Muestra el gráfico
                         #chart_total_mes
 
@@ -1451,7 +1456,7 @@ if funcion=='Reporte Global - Multas':
                         # Crear un DataFrame para los datos
                         grafico_multas = pd.DataFrame({
                             'Días a futuro': range(0, 10),
-                            'Total de multas $MCLP': multas_por_dia
+                            'Total Multas CLP': multas_por_dia
                         })
                         
 
@@ -1462,7 +1467,7 @@ if funcion=='Reporte Global - Multas':
                             opacity=0.5
                         ).encode(
                             x=alt.X('Días a futuro:Q', scale=alt.Scale(zero=False), axis=alt.Axis(values=list(np.arange(0, 10)))),
-                            y=alt.Y('Total de multas $MCLP:Q', scale=alt.Scale(zero=False))
+                            y=alt.Y('Total Multas CLP:Q', scale=alt.Scale(zero=False))
                         )
 
                         text = area.mark_text(
@@ -1473,7 +1478,7 @@ if funcion=='Reporte Global - Multas':
                             fontSize=15,
                             color='black'
                         ).encode(
-                            text=alt.Text('Total de multas $MCLP:Q', format=',.0f')
+                            text=alt.Text('Total Multas CLP:Q', format=',.0f')
                         )
 
                         chart_proyeccion_multas = (area + text).properties(
@@ -1507,7 +1512,8 @@ if funcion=='Reporte Global - Multas':
                         st.header("Despachos")
                         st.altair_chart(despachados, use_container_width=True)
 
-                        col3,col4=st.columns(2)
+                        #col3,col4=st.columns(2)
+                        #st.altair_chart(chart_total_mes,use_container_width=True)
                         with col3:
                             st.altair_chart(chart_despachar,use_container_width=True)
 
@@ -1575,3 +1581,5 @@ if funcion=='Reporte Global - Multas':
             st.write('Cargue un informe de multas.')
     else:
         st.write("Cargue las NV Abiertas")
+if funcion=='Reporte FPS (futuro)':
+    st.title("🧯Reporte FPS")
