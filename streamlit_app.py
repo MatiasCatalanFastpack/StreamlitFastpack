@@ -670,7 +670,7 @@ if funcion=='Reporte Global - Multas':
 
 
 
-                for i in range(0, 8):
+                for i in range(0, 10):
                     df=df_original_filtrado
                     dfm=dfm_original
                     # Copia los dataframes
@@ -1453,10 +1453,10 @@ if funcion=='Reporte Global - Multas':
                                 st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje_proyectadas:.2f}%")
                                 st.altair_chart(chart_proyectadas,use_container_width=True)                                                        
                             
-                    if i==7: 
+                    if i==9: 
                         # Crear un DataFrame para los datos
                         grafico_multas = pd.DataFrame({
-                            'Días a futuro': range(0, 8),
+                            'Días a futuro': range(0, 10),
                             'Total Multas CLP': multas_por_dia
                         })
                         
@@ -1467,7 +1467,7 @@ if funcion=='Reporte Global - Multas':
                             color='steelblue',
                             opacity=0.5
                         ).encode(
-                            x=alt.X('Días a futuro:Q', scale=alt.Scale(zero=False), axis=alt.Axis(values=list(np.arange(0, 8)))),
+                            x=alt.X('Días a futuro:Q', scale=alt.Scale(zero=False), axis=alt.Axis(values=list(np.arange(0, 10)))),
                             y=alt.Y('Total Multas CLP:Q', scale=alt.Scale(zero=False))
                         )
 
