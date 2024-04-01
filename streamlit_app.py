@@ -194,8 +194,7 @@ if funcion=="Despacho Mensual":
 
 
     st.markdown(f"<p style='color:#3468C0;'><b>Porcentaje de cumplimiento: {porcentaje_cumplimiento:.2f}%</b></p>", unsafe_allow_html=True)
-    if suma_proyeccion_inicial>100:
-        porcentaje_cumplimiento=100
+
     st.progress(porcentaje_cumplimiento/100)
 
 
