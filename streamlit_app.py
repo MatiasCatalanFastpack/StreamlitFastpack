@@ -174,7 +174,7 @@ if funcion=="Despacho Mensual":
     # Asegúrate de que 'Fecha Guia' es de tipo datetime
     df_smartsheet['Fecha Guia'] = pd.to_datetime(df_smartsheet['Fecha Guia'])
     # Filtra los datos para el mes en curso
-    df_smartsheet = df_smartsheet[df_smartsheet['Fecha Guia'].dt.month == pd.Timestamp.now().month]
+    #df_smartsheet = df_smartsheet[df_smartsheet['Fecha Guia'].dt.month == pd.Timestamp.now().month]
 
     # Agrupa los datos por 'Fecha Guia' y calcula la suma de 'Monto Guia' para cada día
     df_grouped = df_smartsheet.groupby(df_smartsheet['Fecha Guia'].dt.date)['Monto Guia'].sum().reset_index()
