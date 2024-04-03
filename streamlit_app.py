@@ -192,9 +192,9 @@ if funcion=="Despacho Mensual":
         porcentaje_cumplimiento=100
 
 
-
     st.markdown(f"<p style='color:#3468C0;'><b>Porcentaje de cumplimiento: {porcentaje_cumplimiento:.2f}%</b></p>", unsafe_allow_html=True)
-
+    if porcentaje_cumplimiento>100:
+        porcentaje_cumplimiento=100
     st.progress(porcentaje_cumplimiento/100)
 
 
@@ -217,14 +217,17 @@ if funcion=="Despacho Mensual":
     df_grouped['Fecha Guia'] = df_grouped['Fecha Guia'] + DateOffset(days=1)
     #st.write(df_grouped)
     # Crear el gráfico de área
+    df_grouped['Monto Guia Acumulado CLP'] = df_grouped['Monto Guia Acumulado $MCLP'] * 1e6
+
     area = alt.Chart(df_grouped).mark_area(
         point=alt.MarkConfig(shape='circle', filled=True,color='green'),
         color='lightgreen',
             # Cambia el color a un tono verde claro y pastel
-        opacity=0.5
+        opacity=0.5,
+        
     ).encode(
         x=alt.X('Fecha Guia:T', axis=alt.Axis(format='%d'),title=None),
-        y=alt.Y('Monto Guia Acumulado $MCLP:Q', title='Monto Acumulado $MCLP'),
+        y=alt.Y('Monto Guia Acumulado $MCLP:Q', title='Monto Acumulado $MCLP')
         # Asegura que el color se mantiene constante
     )
 
@@ -241,7 +244,7 @@ if funcion=="Despacho Mensual":
 
     despachados = (area + text).properties(
         title=alt.TitleParams(
-            text='Montos Despachados durante '+current_month_ESP,
+            text='Acumulado Despachados durante '+current_month_ESP,
             anchor='start',
             subtitleColor='gray'
         ),
@@ -295,7 +298,7 @@ if funcion=="Despacho Mensual":
     # Agregar las líneas de proyección al gráfico de área
     despachados = (area + text + linea_proyeccion_inicial + linea_proyeccion_actual).properties(
         title=alt.TitleParams(
-            text='Montos Despachados durante '+current_month_ESP,
+            text='Acumulado Despachados durante '+current_month_ESP,
             anchor='start',
             subtitleColor='gray'
         ),
@@ -333,7 +336,7 @@ if funcion=="Despacho Mensual":
     # Agregar el texto al gráfico
     despachados = (area + text + linea_proyeccion_inicial + linea_proyeccion_actual + text_inicial + text_actual).properties(
         title=alt.TitleParams(
-            text='Montos Despachados durante '+current_month_ESP,
+            text='Acumulado Despachos durante '+current_month_ESP,
             anchor='start',
             subtitleColor='gray'
         ),
@@ -392,13 +395,32 @@ if funcion=='Reporte Global - Multas':
                 return df_smartsheet
             df_smartsheet = read_smartsheet('7322924813864836', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
             df_smartsheet_proyeccion = read_smartsheet('5719956789716868', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
+            df_smartsheet_NVA = read_smartsheet('7140363328245636', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
+            df_smartsheet_NVA = df_smartsheet_NVA.dropna(how='all')
+            mask = (df_smartsheet['Área de negocios'].notna()) & (df_smartsheet['Área de negocios'] != 'Área de negocios')
 
+            # Aplicar la máscara al DataFrame
+            df_smartsheet = df_smartsheet[mask]
+
+            # Elimina las filas con valores nulos
+            # Elimina las filas con valores nulos
+            #df_smartsheet_NVA = df_smartsheet_NVA.dropna()
+
+# Ahora el DataFrame contiene solo filas sin valores nulos
+
+
+            # Ahora el DataFrame contiene solo filas sin valores nulos
+
+            #st.write(df_smartsheet_NVA)
+            
 
             df_smartsheet['NV']=df_smartsheet['NV'].astype('Int64')
             df_original = pd.read_excel(uploaded_file, engine='openpyxl')
             dfm_original = pd.read_excel(uploaded_file2, engine='openpyxl')
+            #df_original=df_smartsheet_NVA
             df=df_original
             dfm=dfm_original
+            
     #fechas
             current_year = datetime.now().year
             current_month = datetime.now().month
@@ -561,7 +583,7 @@ if funcion=='Reporte Global - Multas':
 
                 despachados = (area + text).properties(
                     title=alt.TitleParams(
-                        text='Montos Despachados durante '+current_month_ESP,
+                        text='Acumulado Despachos durante '+current_month_ESP,
                         anchor='start',
                         subtitleColor='gray'
                     ),
@@ -614,7 +636,7 @@ if funcion=='Reporte Global - Multas':
                 # Agregar las líneas de proyección al gráfico de área
                 despachados = (area + text + linea_proyeccion_inicial + linea_proyeccion_actual).properties(
                     title=alt.TitleParams(
-                        text='Montos Despachados durante '+current_month_ESP,
+                        text='Acumulado Despachos durante '+current_month_ESP,
                         anchor='start',
                         subtitleColor='gray'
                     ),
@@ -652,7 +674,7 @@ if funcion=='Reporte Global - Multas':
                 # Agregar el texto al gráfico
                 despachados = (area + text + linea_proyeccion_inicial + linea_proyeccion_actual + text_inicial + text_actual).properties(
                     title=alt.TitleParams(
-                        text='Montos Despachados durante '+current_month_ESP,
+                        text='Acumulado Despachos durante '+current_month_ESP,
                         anchor='start',
                         subtitleColor='gray'
                     ),
@@ -669,7 +691,7 @@ if funcion=='Reporte Global - Multas':
 
 
 
-                for i in range(0, 10):
+                for i in range(0, 8):
                     df=df_original_filtrado
                     dfm=dfm_original
                     # Copia los dataframes
@@ -730,11 +752,13 @@ if funcion=='Reporte Global - Multas':
                     if 'Número de artículo' not in dfm.columns:
                         if 'Item No.' in dfm.columns:
                             dfm = dfm.rename(columns={'Item No.': 'Número de artículo'}) 
-                            dfm=dfm.rename(columns={'Row Total': 'Total líneas'})
+                            dfm = dfm.rename(columns={'Row Total': 'Total líneas'})
                         
                     def asignar_items(df, dfm):
                         # Filtrar las filas en df donde 'Multa se calcula sobre:' es 'Valor del item atrasado'
                         df_filtrado = df[(df['Multa se calcula sobre:'] == 'Valor del item atrasado') & (df['Ahead / Delay'] < 0) & (df['% Multa po Atraso']>0)]
+                        #st.write(df_filtrado,"filtrado")
+                        #st.write(dfm,"dfm")
 
 
                         # Crear una lista vacía para almacenar los resultados
@@ -769,6 +793,9 @@ if funcion=='Reporte Global - Multas':
                                         'Ahead / Delay':item['Días de atraso'],
                                         'Pendiente x cerrar': row['Pendiente x cerrar']
                                     })
+                            #else:
+                                #st.title(coincidencias)
+                                #st.write(dfm,df_filtrado)
 
                             # Crear un DataFrame a partir de items
                             df_items = pd.DataFrame(items)
@@ -853,12 +880,15 @@ if funcion=='Reporte Global - Multas':
                         if df_items is not None and not df_items.empty:
                             df_combinado.loc[df_combinado['Fecha Guia'].notnull(), 'CPE'] = 'Despachado'
                         #st.write(df_items)    
-                        #st.write(df_combinado)    
-                        df_combinado['Estado'] = df_combinado.apply(lambda x: 'Despachado' if pd.notnull(x['Fecha Guia']) or x['Total por Despachar (CLP)'] < 1 else 'Pendiente', axis=1)
-                        df_combinado['Estado'] = df_combinado.apply(
-                            lambda x: 'Despachado' if not pd.isnull(x['Fecha Guia']) or x['Total por Despachar (CLP)'] < 1000 else 'Pendiente', 
-                            axis=1
-                        )
+                        #st.write(df_combinado)
+                        
+                        #st.write(df_items)   
+                        if df_items is not None and not df_items.empty:
+                            df_combinado['Estado'] = df_combinado.apply(lambda x: 'Despachado' if pd.notnull(x['Fecha Guia']) or x['Total por Despachar (CLP)'] < 1 else 'Pendiente', axis=1)
+                            df_combinado['Estado'] = df_combinado.apply(
+                                lambda x: 'Despachado' if not pd.isnull(x['Fecha Guia']) or x['Total por Despachar (CLP)'] < 1000 else 'Pendiente', 
+                                axis=1
+                            )
 
                         df_combinado = df_combinado[df_combinado['Multa en Curso'] > 100000]
                         # Crear una columna de orden para el estado
@@ -1452,10 +1482,10 @@ if funcion=='Reporte Global - Multas':
                                 st.metric(label="Multas Totales Proyectadas", value=f"{Suma_multas_proyectadas:,}", delta=f"-{porcentaje_proyectadas:.2f}%")
                                 st.altair_chart(chart_proyectadas,use_container_width=True)                                                        
                             
-                    if i==9: 
+                    if i==7: 
                         # Crear un DataFrame para los datos
                         grafico_multas = pd.DataFrame({
-                            'Días a futuro': range(0, 10),
+                            'Días a futuro': range(0, 8),
                             'Total Multas CLP': multas_por_dia
                         })
                         
@@ -1466,7 +1496,7 @@ if funcion=='Reporte Global - Multas':
                             color='steelblue',
                             opacity=0.5
                         ).encode(
-                            x=alt.X('Días a futuro:Q', scale=alt.Scale(zero=False), axis=alt.Axis(values=list(np.arange(0, 10)))),
+                            x=alt.X('Días a futuro:Q', scale=alt.Scale(zero=False), axis=alt.Axis(values=list(np.arange(0, 8)))),
                             y=alt.Y('Total Multas CLP:Q', scale=alt.Scale(zero=False))
                         )
 
