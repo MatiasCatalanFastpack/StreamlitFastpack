@@ -108,6 +108,7 @@ if funcion=="Despacho Mensual":
         return df_smartsheet
 
     df_smartsheet = read_smartsheet('7322924813864836', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
+    st.write(df_smartsheet)
     df_smartsheet_proyeccion = read_smartsheet('5719956789716868', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
     # Crear una máscara booleana para las filas que quieres mantener
     mask = (df_smartsheet['Área de negocios'].notna()) & (df_smartsheet['Área de negocios'] != 'Área de negocios')
@@ -352,14 +353,14 @@ if funcion=="Despacho Mensual":
    
 if funcion=='Reporte Global - Multas':
     st.title('📊 Análisis NV Abiertas')
-    uploaded_file = st.sidebar.file_uploader("Carga las Notas de Venta Abierta", type=['xlsx'])
+    #uploaded_file = st.sidebar.file_uploader("Carga las Notas de Venta Abierta", type=['xlsx'])
 
-    uploaded_file2 = st.sidebar.file_uploader("Carga Informe de Multa", type=['xlsx'])
+    #uploaded_file2 = st.sidebar.file_uploader("Carga Informe de Multa", type=['xlsx'])
+    aaa=1
 
 
-
-    if uploaded_file is not None:
-        if  uploaded_file2 is not None:
+    if aaa==1:
+        if  aaa==1:
 
 
             def read_smartsheet(sheet_id, token):
@@ -393,10 +394,14 @@ if funcion=='Reporte Global - Multas':
                             # Si todos los valores son enteros, convierte la columna a int
                             df_smartsheet[col] = df_smartsheet[col].astype(int)
                 return df_smartsheet
+            #ACA SE LEEN TODOS LOS SMARTSHEET A UTILIZAR, FACTURACIÓN POR PERIODO, NV ABIERTAS, INFORME DE MULTAS, PROYECCIÓN FACTURACIÓN 2024
             df_smartsheet = read_smartsheet('7322924813864836', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
             df_smartsheet_proyeccion = read_smartsheet('5719956789716868', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
             df_smartsheet_NVA = read_smartsheet('7140363328245636', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
+            df_smartsheet_dfm =  read_smartsheet('4837570038943620', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
+
             df_smartsheet_NVA = df_smartsheet_NVA.dropna(how='all')
+            st.write(df_smartsheet_NVA)
             mask = (df_smartsheet['Área de negocios'].notna()) & (df_smartsheet['Área de negocios'] != 'Área de negocios')
 
             # Aplicar la máscara al DataFrame
@@ -406,7 +411,7 @@ if funcion=='Reporte Global - Multas':
             # Elimina las filas con valores nulos
             #df_smartsheet_NVA = df_smartsheet_NVA.dropna()
 
-# Ahora el DataFrame contiene solo filas sin valores nulos
+            # Ahora el DataFrame contiene solo filas sin valores nulos
 
 
             # Ahora el DataFrame contiene solo filas sin valores nulos
@@ -415,9 +420,10 @@ if funcion=='Reporte Global - Multas':
             
 
             df_smartsheet['NV']=df_smartsheet['NV'].astype('Int64')
-            df_original = pd.read_excel(uploaded_file, engine='openpyxl')
-            dfm_original = pd.read_excel(uploaded_file2, engine='openpyxl')
-            #df_original=df_smartsheet_NVA
+            #df_original = pd.read_excel(uploaded_file, engine='openpyxl')
+            #dfm_original = pd.read_excel(uploaded_file2, engine='openpyxl')
+            dfm_original=df_smartsheet_dfm
+            df_original=df_smartsheet_NVA
             df=df_original
             dfm=dfm_original
             
@@ -442,22 +448,22 @@ if funcion=='Reporte Global - Multas':
     #fechas
                             
             # Asegurarse de que 'Fecha NV' es de tipo datetime
-            df['Fecha NV'] = pd.to_datetime(df['Fecha NV'], format="%d/%m/%Y")
+            df['Fecha NV'] = pd.to_datetime(df['Fecha NV'], format="%Y-%m-%d")
 
             # Ajustar las fechas al mediodía
             df['Fecha NV'] = df['Fecha NV'].apply(lambda dt: dt.replace(hour=12))
 
-            df['CPE'] = pd.to_datetime(df['CPE'], format="%d/%m/%Y")
+            df['CPE'] = pd.to_datetime(df['CPE'], format="%Y-%m-%d")
 
             # Ajustar las fechas al mediodía
             df['CPE'] = df['CPE'].apply(lambda dt: dt.replace(hour=12))
 
-            dfm['Fecha Guia'] = pd.to_datetime(dfm['Fecha Guia'], format="%d/%m/%Y")
+            dfm['Fecha Guia'] = pd.to_datetime(dfm['Fecha Guia'], format="%Y-%m-%d")
 
             # Ajustar las fechas al mediodía
             dfm['Fecha Guia'] = dfm['Fecha Guia'].apply(lambda dt: dt.replace(hour=12))
 
-            dfm['CPE Linea'] = pd.to_datetime(dfm['CPE Linea'],  format="%d/%m/%Y")
+            dfm['CPE Linea'] = pd.to_datetime(dfm['CPE Linea'], format="%Y-%m-%d")
 
             # Ajustar las fechas al mediodía
             dfm['CPE Linea'] = dfm['CPE Linea'].apply(lambda dt: dt.replace(hour=12))
@@ -867,12 +873,12 @@ if funcion=='Reporte Global - Multas':
                         df_combinado = df_combinado[df_combinado['Multa en Curso'] > 0]
                         
                         # Asegurarse de que 'Fecha NV' es de tipo datetime
-                        df_combinado['Fecha NV'] = pd.to_datetime(df_combinado['Fecha NV'], format="%d/%m/%Y")
+                        df_combinado['Fecha NV'] = pd.to_datetime(df_combinado['Fecha NV'], format="%Y-%m-%d")
 
                         # Ajustar las fechas al mediodía
                         df_combinado['Fecha NV'] = df_combinado['Fecha NV'].apply(lambda dt: dt.replace(hour=12))
 
-                        df_combinado['CPE'] = pd.to_datetime(df_combinado['CPE'], format="%d/%m/%Y")
+                        df_combinado['CPE'] = pd.to_datetime(df_combinado['CPE'], format="%Y-%m-%d")
 
                         # Ajustar las fechas al mediodía
                         df_combinado['CPE'] = df_combinado['CPE'].apply(lambda dt: dt.replace(hour=12))
@@ -944,12 +950,12 @@ if funcion=='Reporte Global - Multas':
                         df_combinado2 = df_combinado2[df_combinado2['Multa Saturada'] > 100000]
                         df_combinado2['Suma Multas']=df_combinado2['Multa Saturada'].sum()
                                     # Asegurarse de que 'Fecha NV' es de tipo datetime
-                        df_combinado2['Fecha NV'] = pd.to_datetime(df_combinado2['Fecha NV'], format="%d/%m/%Y")
+                        df_combinado2['Fecha NV'] = pd.to_datetime(df_combinado2['Fecha NV'], format="%Y-%m-%d")
 
                         # Ajustar las fechas al mediodía
                         df_combinado2['Fecha NV'] = df_combinado2['Fecha NV'].apply(lambda dt: dt.replace(hour=12))
 
-                        df_combinado2['CPE'] = pd.to_datetime(df_combinado2['CPE'], format="%d/%m/%Y")
+                        df_combinado2['CPE'] = pd.to_datetime(df_combinado2['CPE'], format="%Y-%m-%d")
 
                         # Ajustar las fechas al mediodía
                         df_combinado2['CPE'] = df_combinado2['CPE'].apply(lambda dt: dt.replace(hour=12))
@@ -1095,7 +1101,7 @@ if funcion=='Reporte Global - Multas':
                         #chart_proyectadas
                         
 
-                    df['CPE'] = pd.to_datetime(df['CPE'], format="%d/%m/%Y")
+                    df['CPE'] = pd.to_datetime(df['CPE'], format="%Y-%m-%d")
 
                     # Crea una nueva columna para el mes
                     df['Mes'] = df['CPE'].dt.month
