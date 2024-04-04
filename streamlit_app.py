@@ -401,7 +401,6 @@ if funcion=='Reporte Global - Multas':
             df_smartsheet_dfm =  read_smartsheet('4837570038943620', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
 
             df_smartsheet_NVA = df_smartsheet_NVA.dropna(how='all')
-            st.write(df_smartsheet_NVA)
             mask = (df_smartsheet['Área de negocios'].notna()) & (df_smartsheet['Área de negocios'] != 'Área de negocios')
 
             # Aplicar la máscara al DataFrame
