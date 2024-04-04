@@ -108,7 +108,7 @@ if funcion=="Despacho Mensual":
         return df_smartsheet
 
     df_smartsheet = read_smartsheet('7322924813864836', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
-    st.write(df_smartsheet)
+    #st.write(df_smartsheet)
     df_smartsheet_proyeccion = read_smartsheet('5719956789716868', 'rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
     # Crear una máscara booleana para las filas que quieres mantener
     mask = (df_smartsheet['Área de negocios'].notna()) & (df_smartsheet['Área de negocios'] != 'Área de negocios')
