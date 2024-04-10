@@ -62,7 +62,7 @@ st.sidebar.markdown(html, unsafe_allow_html=True)
 st.sidebar.markdown("<hr style='border:2.5px solid white'> </hr>", unsafe_allow_html=True)
 
 st.sidebar.markdown("<h1 style='text-align: center; color: white;'>Análisis de Producción</h1>", unsafe_allow_html=True)
-funcion=st.sidebar.radio("Seleccione una Función",["Despacho Mensual","Reporte Global - Multas", "Reporte FPS (futuro)"])
+funcion=st.sidebar.radio("Seleccione una Función",["Despacho Mensual","Reporte Global - Multas", "Reporte FPS (futuro)", "Automatizaciones"])
 
 url_despacho='https://icons8.com/icon/21183/in-transit'
 
@@ -1618,3 +1618,83 @@ if funcion=='Reporte Global - Multas':
         st.write("Cargue las NV Abiertas")
 if funcion=='Reporte FPS (futuro)':
     st.title("🧯Reporte FPS")
+if funcion=="Automatizaciones":
+
+    st.title("⚙️ Automatizaciones")
+
+
+
+    def get_column_id(sheet, column_name):
+        for column in sheet.columns:
+            if column.title == column_name:
+                return column.id
+        return None
+
+    def get_business_unit(area):
+        if area == 'FPS':
+            return 'FPS'
+        elif area == 'Valvulas':
+            return 'Valvulas'
+        else:
+            return 'Piping'
+
+
+    # Carga el archivo Excel
+    st.sidebar.header("Actualizar Backlog")
+    uploaded_file = st.sidebar.file_uploader("Carga el Excel NV Abiertas", type=['xlsx'])
+    if uploaded_file is not None:
+        df = pd.read_excel(uploaded_file)
+        meses = {1: 'Ene', 2: 'Feb', 3: 'Mar', 4: 'Abr', 5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Ago', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dic'}
+        df['CPE'] = pd.to_datetime(df['CPE'])
+        df['Mes_Año'] = df['CPE'].dt.month.map(meses) + ' ' + df['CPE'].dt.year.astype(str)
+        df['CPE'] = df['CPE'].dt.strftime('%Y-%m-%d')
+
+
+
+        # Inicia la API de Smartsheet
+        smartsheet_client = smartsheet.Smartsheet('rXVhi2MezQGvn2BL1zSlueaBRwxJA7YXS1YSF')
+
+        # Obtiene la hoja de Smartsheet
+        sheet = smartsheet_client.Sheets.get_sheet('5801969050406788')
+
+        # Busca el último número en la columna NV
+        nv_column_id = get_column_id(sheet, 'NV')
+        nv_values = [row.get_column(nv_column_id).value for row in sheet.rows]
+        last_number = max(nv_values)
+
+        # Filtra el DataFrame de Excel para obtener solo las filas con números de NV superiores
+        df = df[df['Nota de venta'] > last_number]
+        # Calcula el total de filas para la barra de progreso
+        total_rows = len(df[df['Nota de venta'] > last_number])
+        # Crea la barra de progreso
+        progress_bar = st.progress(0)
+        # Para cada fila en el DataFrame, crea una nueva fila en Smartsheet
+        for index, (i, row) in enumerate(df.iterrows()):
+            # Actualiza la barra de progreso
+            progress_bar.progress((index + 1) / total_rows)
+            new_row = smartsheet.models.Row()
+            new_row.to_bottom = True
+
+            # Rellena las columnas
+            new_row.cells.append({'column_id': get_column_id(sheet, 'Cliente'), 'value': row['Cliente']})
+            new_row.cells.append({'column_id': get_column_id(sheet, 'Vendedor'), 'value': row['Vendedor']})
+            new_row.cells.append({'column_id': get_column_id(sheet, 'ADC'), 'value': row['Administrador Contratos']})
+            # Rellena las columnas
+            if row['Área de Negocios'] == 'Coplas':
+                new_row.cells.append({'column_id': get_column_id(sheet, 'Área de Negocio'), 'value': 'Cañerías y Fittings'})
+            else:
+                new_row.cells.append({'column_id': get_column_id(sheet, 'Área de Negocio'), 'value': row['Área de Negocios']})
+            new_row.cells.append({'column_id': get_column_id(sheet, 'Tipo de Venta'), 'value': row['Tipo Oferta']})
+
+            new_row.cells.append({'column_id': get_column_id(sheet, 'Un.de Negocio'), 'value': get_business_unit(row['Área de Negocios'])})
+            new_row.cells.append({'column_id': get_column_id(sheet, 'CPE'), 'value': row['CPE']})
+            new_row.cells.append({'column_id': get_column_id(sheet, 'MARGEN'), 'value': int(row['Margen Previsto'])/100})
+            new_row.cells.append({'column_id': get_column_id(sheet, 'Monto fijo Inicial'), 'value': row['Total Venta (CLP)']})
+            #new_row.cells.append({'column_id': get_column_id(sheet, 'Mes_Año'), 'value': row['Total Venta (CLP)']})
+            new_row.cells.append({'column_id': get_column_id(sheet, row['Mes_Año']), 'value': row['Total Venta (CLP)']})
+
+            new_row.cells.append({'column_id': get_column_id(sheet, 'NV'), 'value': row['Nota de venta']})
+
+            # Agrega la fila a la hoja
+            smartsheet_client.Sheets.add_rows('5801969050406788', [new_row])
+        st.success('Base de datos de backlog actualizada')
