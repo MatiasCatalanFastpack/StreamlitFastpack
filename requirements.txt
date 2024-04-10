@@ -3,7 +3,7 @@ matplotlib==3.7.1
 numpy==1.24.3
 openpyxl==3.1.2
 pandas==2.0.1
-Pillow==10.2.0
+Pillow==10.3.0
 pyecharts==2.0.3
 pygal==3.0.0
 Requests==2.31.0
@@ -11,4 +11,4 @@ smartsheet_python_sdk==3.0.2
 st_circular_progress==0.3.9
 streamlit==1.22.0
 streamlit_echarts==0.4.0
-streamlit_extras==0.4.0
+streamlit_extras==0.4.2
